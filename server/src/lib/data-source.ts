@@ -7,7 +7,7 @@ import { User } from "../entities/user-entity";
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "database.sqlite",
-    synchronize: false,
+    synchronize: true,
     logging: true,
     entities: [User, Concert, Reservation],
     migrations: ["src/migrations/**/*.ts"],

@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
@@ -5,15 +6,15 @@ export class Reservation {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
 
-    @Column()
-    concertId!: number;
+    @Column({ type: "uuid" })
+    concertId!: string;
 
-    @Column()
-    userId!: number;
+    @Column({ type: "uuid" })
+    userId!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     status!: string;
 
-    @Column()
-    expiresAt!: string;
+    @Column({ type: "datetime" })
+    expiresAt!: Date;
 }

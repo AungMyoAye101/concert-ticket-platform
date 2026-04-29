@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
@@ -5,15 +6,15 @@ export class Concert {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     title!: string;
 
-    @Column()
+    @Column({ type: "datetime" })
     date!: Date;
 
-    @Column()
+    @Column({ type: "varchar" })
     venue!: string;
 
-    @Column()
+    @Column({ type: "integer" })
     stock!: number;
 }
