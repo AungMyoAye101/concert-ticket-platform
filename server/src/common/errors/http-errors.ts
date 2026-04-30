@@ -1,30 +1,60 @@
 import { AppError } from ".";
 
 export class NotFoundError extends AppError {
-    constructor(message: string) {
-        super(404, message = "Not Found");
+    statusCode = 404;
+    constructor(public message: string) {
+        super(message);
+    }
+    generateError() {
+        return [{ message: this.message }];
     }
 }
 
 export class BadRequestError extends AppError {
-    constructor(message: string) {
-        super(400, message = "Bad Request");
+    statusCode = 400;
+    constructor(public message: string) {
+        super(message);
+    }
+    generateError() {
+        return [{ message: this.message }];
     }
 }
 
 export class UnauthorizedError extends AppError {
-    constructor(message: string) {
-        super(401, message = "Unauthorized");
+    statusCode = 401;
+    constructor(public message: string) {
+        super(message);
+    }
+    generateError() {
+        return [{ message: this.message }];
     }
 }
 export class ForbiddenError extends AppError {
-    constructor(message: string) {
-        super(403, message = "Forbidden");
+    statusCode = 403;
+    constructor(public message: string) {
+        super(message);
+    }
+    generateError() {
+        return [{ message: this.message }];
     }
 }
 
 export class InternalServerError extends AppError {
-    constructor(message: string) {
-        super(500, message = "Internal Server Error");
+    statusCode = 500;
+    constructor(public message: string) {
+        super(message);
+    }
+    generateError() {
+        return [{ message: this.message }];
     }
 }
+
+export class ConflictError extends AppError {
+    statusCode = 409;
+    constructor(public message: string) {
+        super(message);
+    }
+    generateError() {
+        return [{ message: this.message }];
+    }
+};

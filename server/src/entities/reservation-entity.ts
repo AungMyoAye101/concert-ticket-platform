@@ -1,15 +1,15 @@
 import "reflect-metadata";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, Index } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Ticket } from "./ticket-entity";
 
 
 export enum ReservationStatus {
     PENDING = "PENDING",
     CONFIRMED = "COMPLETED",
-    CANCELLED = "EXPIRED"
+    CANCELLED = "EXPIRED",
+    COMPLETED = "COMPLETED"
 }
 @Entity()
-@Index("idx_reservation_status", ["status"], { where: "status = PENDING" })
 export class Reservation {
     @PrimaryGeneratedColumn("uuid")
     id!: string;

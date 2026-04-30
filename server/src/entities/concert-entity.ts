@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, Index } from "typeorm";
+import "reflect-metadata";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Ticket } from "./ticket-entity";
 
 @Entity()
-@Index("idx_concert_id", ["concertId"])
 export class Concert {
     @PrimaryGeneratedColumn("uuid")
     id!: string;

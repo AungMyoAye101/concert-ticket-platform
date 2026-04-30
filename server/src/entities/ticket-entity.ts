@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Concert } from "./concert-entity";
 export enum TicketCategory {

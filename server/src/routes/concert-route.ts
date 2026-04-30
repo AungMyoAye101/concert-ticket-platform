@@ -1,9 +1,15 @@
 import { Router } from "express";
-import { getAllConcertsController } from "../controllers/concert-controller";
+import { validate } from "../middlewares/validation-middleware";
+import {
+    createConcertController,
+    getConcertsController,
+} from "../controllers/concert-controller";
+import { createConcertSchema } from "../validators/concert-schema";
 
 const route = Router();
 
-//get all concerts
-route.get("/", getAllConcertsController);
+route.get("/concerts", getConcertsController);
+// route.get("/concerts/:id", asyncCatchFn(getConcertByIdController));
+route.post("/concerts", validate(createConcertSchema), createConcertController);
 
 export default route;

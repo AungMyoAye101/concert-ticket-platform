@@ -3,7 +3,7 @@ import { successResponse } from "../common/success-response";
 
 const route = Router();
 
-route.get("/health", (_req, res) => {
+route.get("/", (_req, res) => {
     successResponse(res, 200, "Server is healthy");
 });
 
