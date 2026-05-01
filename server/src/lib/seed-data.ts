@@ -1,16 +1,23 @@
 import { DataSource } from "typeorm";
 import { User } from "../entities/user-entity";
 import { Concert } from "../entities/concert-entity";
+import { Reservation } from "../entities/reservation-entity";
+import { Ticket } from "../entities/ticket-entity";
+import { ReservationStatus } from "../entities/reservation-entity";
 import { AppDataSource } from "./data-source";
 async function seedDatabase(dataSource: DataSource) {
     const userRepo = dataSource.getRepository(User);
     const concertRepo = dataSource.getRepository(Concert);
+    const ticketRepo = dataSource.getRepository(Ticket);
+    const reservationRepo = dataSource.getRepository(Reservation);
 
     console.log("🌱 Seeding database...");
 
     // ပုံမှန်အားဖြင့် Seed မလုပ်ခင် Data အဟောင်းတွေကို ဖျက်လေ့ရှိပါတယ် (ရွေးချယ်နိုင်သည်)
     await userRepo.clear();
     await concertRepo.clear();
+    await ticketRepo.clear();
+    await reservationRepo.clear();
 
     // 1. Seed Users
     const users = userRepo.create([
@@ -35,6 +42,49 @@ async function seedDatabase(dataSource: DataSource) {
         }
     ]);
     await concertRepo.save(concerts);
+
+    // 3. Seed Tickets
+    const tickets = ticketRepo.create([
+        // Tickets for Rock Revolution 2026
+        { concertId: concerts[0].id, seatNumber: "A1", price: 50, status: "available", category: "GENERAL" },
+        { concertId: concerts[0].id, seatNumber: "A2", price: 50, status: "available", category: "GENERAL" },
+        { concertId: concerts[0].id, seatNumber: "A3", price: 50, status: "available", category: "GENERAL" },
+        { concertId: concerts[0].id, seatNumber: "B1", price: 50, status: "available", category: "GENERAL" },
+        { concertId: concerts[0].id, seatNumber: "B2", price: 50, status: "available", category: "GENERAL" },
+        // Tickets for Exclusive VIP Acoustic Night
+        { concertId: concerts[1].id, seatNumber: "VIP1", price: 200, status: "available", category: "VIP" },
+        { concertId: concerts[1].id, seatNumber: "VIP2", price: 200, status: "available", category: "VIP" },
+        { concertId: concerts[1].id, seatNumber: "VIP3", price: 200, status: "available", category: "VIP" },
+        { concertId: concerts[1].id, seatNumber: "VIP4", price: 200, status: "available", category: "VIP" },
+        { concertId: concerts[1].id, seatNumber: "VIP5", price: 200, status: "available", category: "VIP" },
+    ]);
+    await ticketRepo.save(tickets);
+
+    // 4. Seed Reservations
+    const reservations = reservationRepo.create([
+        {
+            concertId: concerts[0].id,
+            userId: users[0].id,
+            status: ReservationStatus.PENDING,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // expires in 1 day
+            ticket: tickets[0]
+        },
+        {
+            concertId: concerts[0].id,
+            userId: users[1].id,
+            status: ReservationStatus.COMPLETED,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            ticket: tickets[1]
+        },
+        {
+            concertId: concerts[1].id,
+            userId: users[0].id,
+            status: ReservationStatus.PENDING,
+            expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days
+            ticket: tickets[5] // VIP1
+        },
+    ]);
+    await reservationRepo.save(reservations);
 
     console.log("✅ Database successfully seeded!");
 }
