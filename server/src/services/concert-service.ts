@@ -4,7 +4,6 @@ import { NotFoundError } from "../common/errors/http-errors";
 
 export const getAllConcerts = async () => {
     const repo = AppDataSource.getRepository(Concert);
-    throw new NotFoundError("No concerts found");
     return repo.find();
 };
 
