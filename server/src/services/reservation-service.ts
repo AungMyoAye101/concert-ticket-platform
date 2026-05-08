@@ -1,11 +1,12 @@
 import { ConflictError, NotFoundError } from "../common/errors/http-errors";
 import { Concert } from "../entities/concert-entity";
 import { Reservation, ReservationStatus } from "../entities/reservation-entity";
-import { Ticket } from "../entities/ticket-entity";
+import { Ticket, TicketStatus } from "../entities/ticket-entity";
 import { AppDataSource } from "../lib/data-source";
+import { LessThanOrEqual } from "typeorm";
 
 
-export const reserve = async (userId: string, concertId: string) => {
+export const reserve = async (userId: string, concertId: string, quantity = 1) => {
     const queryRunner = AppDataSource.createQueryRunner();
 
     await queryRunner.connect();
@@ -15,32 +16,45 @@ export const reserve = async (userId: string, concertId: string) => {
         const result = await queryRunner.manager
             .createQueryBuilder()
             .update(Concert)
-            .set({ stock: () => "stock - 1" })
-            .where("id = :id AND stock > 0", { id: concertId })
+            .set({ stock: () => `stock - ${quantity}` })
+            .where("id = :id AND stock >= :quantity", { id: concertId, quantity })
             .execute();
-        console.log(result);
+
         if (result.affected === 0) {
             throw new ConflictError("Tickets are sold out");
         }
 
-        const ticket = await queryRunner.manager.findOneBy(Ticket, {
-            concertId,
-        });
+        const tickets = await queryRunner.manager
+            .createQueryBuilder(Ticket, "ticket")
+            .setLock("pessimistic_write")
+            .where("ticket.concertId = :concertId", { concertId })
+            .andWhere("ticket.status = :status", { status: TicketStatus.AVAILABLE })
+            .orderBy("ticket.seatNumber", "ASC")
+            .limit(quantity)
+            .getMany();
 
-        if (!ticket) throw new NotFoundError("Ticket not found");
+        if (tickets.length < quantity) {
+            throw new ConflictError("Not enough tickets are available");
+        }
 
-        const reservation = queryRunner.manager.create(Reservation, {
-            userId,
-            ticketId: ticket.id,
-            status: ReservationStatus.PENDING,
-            expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-        });
+        const reservations = [];
+        for (const ticket of tickets) {
+            ticket.status = TicketStatus.RESERVED;
+            await queryRunner.manager.save(ticket);
 
-        await queryRunner.manager.save(reservation);
+            const reservation = queryRunner.manager.create(Reservation, {
+                userId,
+                concertId,
+                ticketId: ticket.id,
+                status: ReservationStatus.PENDING,
+                expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+            });
+            reservations.push(await queryRunner.manager.save(reservation));
+        }
 
         await queryRunner.commitTransaction();
 
-        return reservation;
+        return reservations;
     } catch (err) {
         await queryRunner.rollbackTransaction();
         throw err;
@@ -62,6 +76,37 @@ export const purchase = async (reservationId: string) => {
     }
 
     reservation.status = ReservationStatus.COMPLETED;
+    await AppDataSource.getRepository(Ticket).update({ id: reservation.ticketId }, { status: TicketStatus.SOLD });
 
     return repo.save(reservation);
+};
+
+export const cleanupExpiredReservations = async () => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+        const expired = await queryRunner.manager.find(Reservation, {
+            where: {
+                status: ReservationStatus.PENDING,
+                expiresAt: LessThanOrEqual(new Date()),
+            },
+        });
+
+        for (const reservation of expired) {
+            reservation.status = ReservationStatus.EXPIRED;
+            await queryRunner.manager.save(reservation);
+            await queryRunner.manager.update(Ticket, { id: reservation.ticketId }, { status: TicketStatus.AVAILABLE });
+            await queryRunner.manager.increment(Concert, { id: reservation.concertId }, "stock", 1);
+        }
+
+        await queryRunner.commitTransaction();
+        return { expiredCount: expired.length };
+    } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+    } finally {
+        await queryRunner.release();
+    }
 };

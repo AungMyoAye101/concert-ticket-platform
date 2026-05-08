@@ -1,6 +1,7 @@
 import { ZodSchema } from "zod";
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "../common/errors/http-errors";
+import { log } from "../utils/logger";
 
 
 export const validate =
@@ -9,6 +10,7 @@ export const validate =
             const result = schema.safeParse(req.body);
 
             if (!result.success) {
+                log.warn("Validation error", { issues: result.error.issues });
                 throw new BadRequestError(result.error.message);
             }
 

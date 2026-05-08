@@ -6,8 +6,8 @@ import { createUserSchema } from "../validators/user-schema";
 
 const router = Router();
 
-router.get("/users", asyncCatchFn(getUsersController));
-router.get("/users/:id", asyncCatchFn(getUserByIdController));
-router.post("/users", validate(createUserSchema), asyncCatchFn(createUserController));
+router.get("/", asyncCatchFn(getUsersController));
+router.get("/:id", asyncCatchFn(getUserByIdController));
+router.post("/", validate(createUserSchema), asyncCatchFn(createUserController));
 
 export default router;

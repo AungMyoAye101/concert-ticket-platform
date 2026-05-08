@@ -3,7 +3,10 @@ node_modules/
 .pnp
 .pnp.js
 /server/node_modules/
+/server/.agents
+/server/.codex
 /client/node_modules/
+
 
 # Testing
 /coverage

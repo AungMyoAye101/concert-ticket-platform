@@ -1,0 +1,51 @@
+services:
+  api:
+    build: .
+    container_name: concert-ticket-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: concert_ticket_platform
+      REDIS_URL: redis://redis:6379
+      TYPEORM_LOGGING: "false"
+    ports:
+      - "3000:3000"
+    command: sh -c "yarn migration:run:prod && yarn start"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: concert-ticket-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: concert_ticket_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d concert_ticket_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: concert-ticket-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

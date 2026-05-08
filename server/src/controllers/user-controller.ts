@@ -27,7 +27,7 @@ export const getUsersController = async (_req: Request, res: Response) => {
 };
 
 export const getUserByIdController = async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = String(req.params.id);
     const user = await getUserById(id);
 
     return successResponse(res, 200, "User fetched", mapUserResponse(user));

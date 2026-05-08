@@ -1,4 +1,7 @@
-node_modules/
-npm-degug.log	
-Dockerfile
-.dockerignore
+node_modules
+dist
+database.sqlite
+.env
+.git
+npm-debug.log
+yarn-error.log

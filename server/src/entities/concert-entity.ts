@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Ticket } from "./ticket-entity";
+import { Reservation } from "./reservation-entity";
 
 @Entity()
 export class Concert {
@@ -10,7 +11,7 @@ export class Concert {
     @Column({ type: "varchar", length: 255 })
     title!: string;
 
-    @Column({ type: "datetime" })
+    @Column({ type: "timestamptz" })
     date!: Date;
 
     @Column({ type: "varchar", length: 255 })
@@ -27,4 +28,7 @@ export class Concert {
     //relations
     @OneToMany(() => Ticket, (ticket) => ticket.concert)
     tickets!: Ticket[];
+
+    @OneToMany(() => Reservation, (reservation) => reservation.concert)
+    reservations!: Reservation[];
 }

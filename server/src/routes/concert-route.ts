@@ -8,8 +8,8 @@ import { createConcertSchema } from "../validators/concert-schema";
 
 const route = Router();
 
-route.get("/concerts", getConcertsController);
+route.get("/", getConcertsController);
 // route.get("/concerts/:id", asyncCatchFn(getConcertByIdController));
-route.post("/concerts", validate(createConcertSchema), createConcertController);
+route.post("/", validate(createConcertSchema), createConcertController);
 
 export default route;

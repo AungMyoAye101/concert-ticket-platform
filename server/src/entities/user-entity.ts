@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Reservation } from "./reservation-entity";
 
 @Entity()
 export class User {
@@ -14,4 +15,7 @@ export class User {
 
     @Column({ type: "varchar" })
     password!: string;
+
+    @OneToMany(() => Reservation, (reservation) => reservation.user)
+    reservations!: Reservation[];
 }

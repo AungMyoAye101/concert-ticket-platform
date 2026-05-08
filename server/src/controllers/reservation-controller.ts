@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { successResponse } from "../common/success-response";
-import { purchase, reserve } from "../services/reservation-service";
+import { cleanupExpiredReservations, purchase, reserve } from "../services/reservation-service";
 
 
 export const reserveTicket = async (req: Request, res: Response) => {
-    const { userId, concertId } = req.body;
+    const { userId, concertId, quantity } = req.body;
 
-    const result = await reserve(userId, concertId);
+    const result = await reserve(userId, concertId, quantity);
 
     return successResponse(
         res,
@@ -28,4 +28,9 @@ export const purchaseTicket = async (req: Request, res: Response) => {
         result,
     );
 
+};
+
+export const cleanupReservationsController = async (_req: Request, res: Response) => {
+    const result = await cleanupExpiredReservations();
+    return successResponse(res, 200, "Expired reservations released", result);
 };

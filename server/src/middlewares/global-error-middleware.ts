@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { asyncLocalStorage } from "./correlation-middleware";
 import { AppError } from "../common/errors";
+import { log } from "../utils/logger";
+import * as Sentry from "@sentry/node";
 
 export const globalErrorHandler = (
     err: any,
@@ -19,14 +21,15 @@ export const globalErrorHandler = (
     if (err instanceof AppError) {
         statusCode = err.statusCode;
         message = err.message;
+        code = err.constructor.name.replace("Error", "").toUpperCase() || code;
     }
 
-    // log full error (important for Day 3)
-    // logger.error({
-    //     correlationId,
-    //     message: err.message,
-    //     stack: err.stack,
-    // });
+    log.error("Global error handler", {
+        correlationId,
+        error: err.message,
+        stack: err.stack,
+    });
+    Sentry.captureException(err, { tags: { correlationId } });
 
     return res.status(statusCode).json({
         success: false,
