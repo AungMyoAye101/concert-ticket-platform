@@ -15,7 +15,7 @@ const router = Router();
 router.get("/", asyncCatchFn(getTicketsController));
 router.post("/", validate(createTicketSchema), asyncCatchFn(createTicketController));
 router.post(
-    "/tickets/reserve/optimistic",
+    "/reserve/optimistic",
     reserveRateLimiter,
     validate(ticketReservationSchema),
     asyncCatchFn(reserveTicketOptimisticController)
