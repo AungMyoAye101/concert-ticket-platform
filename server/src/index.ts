@@ -16,12 +16,14 @@ if (process.env.SENTRY_DSN) {
 }
 
 const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL || "http://localhost:";
+const NODE_ENV = process.env.NODE_ENV === "PRODUCTION";
 
 app.get("/", (_req: Request, res: Response) => {
   res.json({
     success: true,
-    message: `Server is running on http://localhost:${PORT}`,
-    doc: `Swagger UI is running on  http://localhost:${PORT}/api/v1/docs`,
+    message: `Server is running on ${NODE_ENV ? BASE_URL : BASE_URL + PORT}`,
+    doc: `Swagger UI is running on  ${NODE_ENV ? BASE_URL : BASE_URL + PORT}/api/v1/docs`,
   });
 });
 
@@ -31,7 +33,7 @@ AppDataSource.initialize()
   .then(async () => {
     log.info("Database connected and initialized successfully");
     server = app.listen(PORT, () => {
-      log.info(`Server is running on http://localhost:${PORT}`);
+      log.info(`Server is running on ${BASE_URL + PORT}`);
     });
   })
   .catch((error) => {
