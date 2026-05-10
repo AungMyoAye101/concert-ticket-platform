@@ -5,9 +5,7 @@ export const openApiSpec = {
         version: "1.0.0",
         description: "Production-ready concert ticket reservation API with PostgreSQL, locking, validation, and correlation IDs.",
     },
-    servers: [
-        { url: "/api/v1" },
-    ],
+    servers: [{ url: "/api/v1" }],
     paths: {
         "/concerts": {
             get: {
@@ -71,6 +69,43 @@ export const openApiSpec = {
                 summary: "Expire pending reservations older than 5 minutes and release stock",
                 responses: {
                     "200": { description: "Expired reservations released" },
+                },
+            },
+        },
+        "/auth/login": {
+            post: {
+                summary: "Login with email and password",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/LoginRequest" },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Login successful" },
+                    "401": { $ref: "#/components/responses/Unauthorized" },
+                },
+            },
+        },
+        "/auth/logout": {
+            post: {
+                summary: "Logout current bearer-token user",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "Logout successful" },
+                    "401": { $ref: "#/components/responses/Unauthorized" },
+                },
+            },
+        },
+        "/auth/me": {
+            get: {
+                summary: "Get current bearer-token user",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "Current user fetched" },
+                    "401": { $ref: "#/components/responses/Unauthorized" },
                 },
             },
         },
@@ -140,17 +175,53 @@ export const openApiSpec = {
         },
     },
     components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: "http",
+                scheme: "bearer",
+                bearerFormat: "JWT",
+            },
+        },
         responses: {
             BadRequest: {
                 description: "Validation error",
-                content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+                content: {
+                    "application/json": {
+                        schema: { $ref: "#/components/schemas/ErrorResponse" },
+                    },
+                },
             },
             Conflict: {
                 description: "Locking or stock conflict",
-                content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+                content: {
+                    "application/json": {
+                        schema: { $ref: "#/components/schemas/ErrorResponse" },
+                    },
+                },
+            },
+            Unauthorized: {
+                description: "Authentication failed",
+                content: {
+                    "application/json": {
+                        schema: { $ref: "#/components/schemas/ErrorResponse" },
+                    },
+                },
             },
         },
         schemas: {
+            LoginRequest: {
+                type: "object",
+                additionalProperties: false,
+                required: ["email", "password"],
+                properties: {
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "aung@example.com",
+                    },
+                    password: { type: "string", example: "password123" },
+                },
+            },
             CreateConcertRequest: {
                 type: "object",
                 additionalProperties: false,
@@ -188,7 +259,11 @@ export const openApiSpec = {
                     concertId: { type: "string", format: "uuid" },
                     seatNumber: { type: "string", example: "A1" },
                     price: { type: "number", example: 99.99 },
-                    category: { type: "string", enum: ["VIP", "GENERAL"], default: "GENERAL" },
+                    category: {
+                        type: "string",
+                        enum: ["VIP", "GENERAL"],
+                        default: "GENERAL",
+                    },
                     internalNote: { type: "string" },
                 },
             },

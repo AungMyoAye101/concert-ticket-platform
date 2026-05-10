@@ -1,6 +1,7 @@
 import { AppDataSource } from "../lib/data-source";
 import { User } from "../entities/user-entity";
 import { ConflictError, NotFoundError } from "../common/errors/http-errors";
+import { hashPassword } from "./auth-service";
 
 export const createUser = async (name: string, email: string, password: string) => {
     const repo = AppDataSource.getRepository(User);
@@ -10,7 +11,11 @@ export const createUser = async (name: string, email: string, password: string) 
         throw new ConflictError("Email already in use");
     }
 
-    const user = repo.create({ name, email, password });
+    const user = repo.create({
+        name,
+        email,
+        password: await hashPassword(password),
+    });
     return repo.save(user);
 };
 

@@ -9,6 +9,7 @@ import {
 } from "../entities/ticket-entity";
 import { ReservationStatus } from "../entities/reservation-entity";
 import { AppDataSource } from "./data-source";
+import { hashPassword } from "../services/auth-service";
 async function seedDatabase(dataSource: DataSource) {
   const userRepo = dataSource.getRepository(User);
   const concertRepo = dataSource.getRepository(Concert);
@@ -27,9 +28,13 @@ async function seedDatabase(dataSource: DataSource) {
     {
       name: "Aung Aung",
       email: "aung@example.com",
-      password: "hashed_password_1",
+      password: await hashPassword("password123"),
     },
-    { name: "Su Su", email: "susu@example.com", password: "hashed_password_2" },
+    {
+      name: "Su Su",
+      email: "susu@example.com",
+      password: await hashPassword("password123"),
+    },
   ]);
   await userRepo.save(users);
 

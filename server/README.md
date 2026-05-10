@@ -33,6 +33,9 @@ yarn migration:run:prod && yarn start
 
 ## Main Endpoints
 
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/me`
 - `GET /api/v1/concerts`
 - `POST /api/v1/concerts`
 - `POST /api/v1/reserve`
@@ -42,6 +45,25 @@ yarn migration:run:prod && yarn start
 - `POST /api/v1/tickets`
 - `POST /api/v1/tickets/reserve/optimistic`
 - `POST /api/v1/tickets/reserve/pessimistic`
+
+## Authentication
+
+Login returns a JWT bearer token:
+
+```json
+{
+  "email": "aung@example.com",
+  "password": "password123"
+}
+```
+
+Send protected requests with:
+
+```text
+Authorization: Bearer <token>
+```
+
+Set `JWT_SECRET` and optionally `JWT_EXPIRES_IN` in the server environment. In non-production only, the server falls back to a development secret if `JWT_SECRET` is missing.
 
 ## Double-Selling Protection
 
