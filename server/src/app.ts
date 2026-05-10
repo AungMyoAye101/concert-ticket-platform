@@ -23,13 +23,12 @@ app.use(cookiesParser());
 app.use(express.json());
 app.use(correlationMiddleware);
 app.use((req, _res, next) => {
-    log.info("Request received", { method: req.method, path: req.path });
-    next();
+  log.info("Request received", { method: req.method, path: req.path });
+  next();
 });
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
-app.use("/api/v1", routes)
+app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
+app.use("/api/v1", routes);
 app.use(globalErrorHandler);
 
 export default app;
