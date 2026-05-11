@@ -26,7 +26,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
     try {
       if (isSignup) {
-        await apiFetch("/users", {
+        await apiFetch("/auth/register", {
           method: "POST",
           body: JSON.stringify({ name, email, password }),
         });
