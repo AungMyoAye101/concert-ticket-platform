@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { apiFetch, getStoredSession, Ticket } from "../lib/api";
+import Modal from "./modal";
 
 type Reservation = {
   id: string;
@@ -22,6 +23,7 @@ export function TicketActions({
   const [message, setMessage] = useState("");
   const [loadingTicketId, setLoadingTicketId] = useState<string | null>(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const availableTickets = useMemo(
     () =>
@@ -51,16 +53,14 @@ export function TicketActions({
     setLoadingTicketId(ticket.id);
 
     try {
-      const data = await apiFetch<Reservation>(
-        "/tickets/reserve/pessimistic",
-        {
-          method: "POST",
-          body: JSON.stringify({ userId: session.user.id, ticketId: ticket.id }),
-        },
-      );
+      const data = await apiFetch<Reservation>("/tickets/reserve/pessimistic", {
+        method: "POST",
+        body: JSON.stringify({ userId: session.user.id, ticketId: ticket.id }),
+      });
       setReservation(data);
       setMessage(`Seat ${ticket.seatNumber} reserved.`);
       await refreshTickets();
+      setIsOpen(true);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Reservation failed");
     } finally {
@@ -84,6 +84,7 @@ export function TicketActions({
       setMessage("Purchase successful.");
       setReservation(null);
       await refreshTickets();
+      setIsOpen(false);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Purchase failed");
     } finally {
@@ -98,9 +99,7 @@ export function TicketActions({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
             Available tickets
           </p>
-          <h2 className="mt-2 text-3xl font-bold text-white">
-            Pick your seat
-          </h2>
+          <h2 className="mt-2 text-3xl font-bold text-white">Pick your seat</h2>
         </div>
         {reservation && (
           <button
@@ -149,6 +148,13 @@ export function TicketActions({
           No available tickets for this concert right now.
         </p>
       )}
+      <Modal
+        title="Are you sure ?"
+        description={`You are going to purchase `}
+        onClose={() => setIsOpen(false)}
+        isOpen={isOpen}
+        onComfrim={purchase}
+      />
     </section>
   );
 }

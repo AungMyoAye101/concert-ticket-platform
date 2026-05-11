@@ -71,7 +71,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="concerts" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+      <section
+        id="concerts"
+        className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6"
+      >
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
@@ -112,12 +115,12 @@ export default async function Home() {
           {reviews.map((review) => (
             <article
               key={review.name}
-              className="rounded-xl border border-white/10 bg-white/[0.04] p-6"
+              className="rounded-xl border border-white/10 bg-white/4 p-6"
             >
-              <p className="text-lg leading-8 text-zinc-100">“{review.quote}”</p>
-              <p className="mt-5 font-semibold text-cyan-200">
-                {review.name}
+              <p className="text-lg leading-8 text-zinc-100">
+                “{review.quote}”
               </p>
+              <p className="mt-5 font-semibold text-cyan-200">{review.name}</p>
             </article>
           ))}
         </div>

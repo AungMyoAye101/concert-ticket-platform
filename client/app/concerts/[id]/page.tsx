@@ -5,7 +5,7 @@ import { apiFetch, Concert, Ticket } from "../../lib/api";
 
 async function getConcert(id: string) {
   try {
-    return await apiFetch<Concert>(`/concerts/concerts/${id}`, {
+    return await apiFetch<Concert>(`/concerts/${id}`, {
       cache: "no-store",
     });
   } catch {
